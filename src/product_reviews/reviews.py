@@ -14,7 +14,7 @@ def parse_reviews(url: str) -> ProviderReviewList:
     providerClass = _check_matched_provider(url)
     if not providerClass:
         print("No providers matches url")
-        raise NoMatchedProvidersException(f'No matcherd providers for "{url}"')  # noqa: TRY003
+        raise NoMatchedProvidersException(f'No matched providers for "{url}"')  # noqa: TRY003
     provider = providerClass()
     try:
         review_list = provider.get_reviews(url)

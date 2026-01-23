@@ -36,4 +36,4 @@ def iter_providers(
 
 
 def list_providers():
-    return list(load_all_providers().values())
+    return sorted(load_all_providers().values(), key=lambda x: x.name)
