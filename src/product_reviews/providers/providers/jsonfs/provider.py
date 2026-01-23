@@ -3,7 +3,7 @@ from pathlib import Path
 from re import Pattern
 from typing import ClassVar
 
-from product_reviews.models import ProviderReviewList, Review, ReviewList
+from product_reviews.models import Review, ReviewList
 from product_reviews.providers.base import BaseReviewsProvider
 from product_reviews.providers.exceptions import InvalidURLError, ReviewsParseException
 
@@ -36,7 +36,7 @@ Expected file structure:
         f"json://{(script_file / 'tests' / 'data' / '1.json').as_posix()}",
     ]
 
-    def get_reviews(self, url: str) -> ProviderReviewList:
+    def get_reviews(self, url: str) -> ReviewList:
         filepath = url[7:]
 
         if not Path(filepath).is_file():

@@ -1,6 +1,6 @@
-import importlib
 import logging
 from collections.abc import Generator
+from importlib import metadata
 
 from .base import BaseReviewsProvider
 
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def load_entry_point_providers() -> Generator[type[BaseReviewsProvider], None, None]:
-    eps = importlib.metadata.entry_points(group=ENTRY_POINT_GROUP)
+    eps = metadata.entry_points(group=ENTRY_POINT_GROUP)
 
     for ep in eps:
         try:

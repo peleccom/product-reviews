@@ -1,6 +1,6 @@
-import importlib
 import logging
 from collections.abc import Generator
+from importlib import util as importlib_util
 from pathlib import Path
 
 from .base import BaseReviewsProvider
@@ -24,11 +24,11 @@ def load_fs_provider(provider_path: Path) -> type[BaseReviewsProvider] | None:
         return None
 
     try:
-        spec = importlib.util.spec_from_file_location(provider_path.name, provider_file)
+        spec = importlib_util.spec_from_file_location(provider_path.name, provider_file)
         if spec is None or spec.loader is None:
             return None
 
-        module = importlib.util.module_from_spec(spec)
+        module = importlib_util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
         provider_class = _find_provider_in_module(module)

@@ -45,7 +45,7 @@ class ProductReviewsService:
     def list_providers() -> list[type[BaseReviewsProvider]]:
         return list_providers()
 
-    def get_provider_for_url(self, url: str) -> type[BaseReviewsProvider]:
+    def get_provider_for_url(self, url: str) -> type[BaseReviewsProvider] | None:
         return _check_matched_provider(url)
 
     def get_provider_class(self, provider_name: str) -> type[BaseReviewsProvider]:

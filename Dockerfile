@@ -17,5 +17,4 @@ COPY . /app
 
 # Sync the project
 RUN uv sync --frozen
-
-CMD [ "python", "product_reviews/foo.py" ]
+CMD [ "uv", "run", "python", "-m", "src.product_reviews.cli.main" ]

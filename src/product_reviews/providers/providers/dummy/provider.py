@@ -2,7 +2,7 @@ from datetime import datetime
 from re import Pattern
 from typing import ClassVar
 
-from product_reviews.models import ProviderReviewList, Review, ReviewList
+from product_reviews.models import Review, ReviewList
 from product_reviews.providers.base import BaseReviewsProvider
 
 
@@ -15,7 +15,7 @@ class DummyReviewsProvider(BaseReviewsProvider):
         "https://example.com/reviews/product-2",
     ]
 
-    def get_reviews(self, url: str) -> ProviderReviewList:
+    def get_reviews(self, url: str) -> ReviewList:
         reviews = [
             Review(
                 rating=5.0,

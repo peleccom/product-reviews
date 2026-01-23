@@ -5,7 +5,7 @@ import re
 from abc import ABC, abstractmethod
 from typing import ClassVar
 
-from product_reviews.models import HealthCheckResult, ProviderReviewList
+from product_reviews.models import HealthCheckResult, ReviewList
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class BaseReviewsProvider(ABC):
         return False
 
     @abstractmethod
-    def get_reviews(self, url: str) -> ProviderReviewList:
+    def get_reviews(self, url: str) -> ReviewList:
         raise NotImplementedError
 
     def check_health(self) -> list[HealthCheckResult]:
@@ -41,7 +41,7 @@ class BaseReviewsProvider(ABC):
         """
         if not self.test_urls:
             return [
-                self.HealthCheckResult(
+                HealthCheckResult(
                     is_healthy=False,
                     message="No test URLs configured",
                 )
