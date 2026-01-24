@@ -17,10 +17,14 @@ class Review:
     def to_dict(self):
         return dataclasses.asdict(self)
 
-    def to_json(self):
+    def to_representation(self):
         d = self.to_dict()
         d["created_at"] = d["created_at"].isoformat()
-        return json.dumps(d)
+        return d
+
+    def to_json(self):
+        r = self.to_representation()
+        return json.dumps(r)
 
     @classmethod
     def from_representation(self, r):
