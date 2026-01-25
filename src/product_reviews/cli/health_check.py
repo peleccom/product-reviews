@@ -21,13 +21,19 @@ def get_all_providers() -> list[type[BaseReviewsProvider]]:
     return [p for p in providers if p.name != "ozon_by"]
 
 
+def _select_provider(providers: Union[list[type[BaseReviewsProvider]], None] = None) -> list[type[BaseReviewsProvider]]:
+    if providers is None:
+        providers = get_all_providers()
+
+    return providers
+
+
 def run_health_checks(providers: Union[list[type[BaseReviewsProvider]], None] = None) -> bool:
     """
     Run health checks for all providers or specified providers.
     Returns True if all providers are healthy.
     """
-    if providers is None:
-        providers = get_all_providers()
+    providers = _select_provider(providers)
 
     table = Table(title="Review Providers Health Check")
     table.add_column("Provider", style="cyan")

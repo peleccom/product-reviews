@@ -65,6 +65,7 @@ def main() -> None:
     # Health check command
     health_parser = subparsers.add_parser("health", help="Check health of review providers")
     health_parser.add_argument("--provider", type=str, help="Check specific provider (by name)")
+
     # List providers command
     subparsers.add_parser("list", help="List providers")
 
