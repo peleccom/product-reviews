@@ -1,5 +1,6 @@
 from datetime import datetime
-from unittest.mock import patch
+
+from freezegun import freeze_time
 
 from product_reviews.models import ReviewList
 from product_reviews.providers.providers.dummy import provider
@@ -16,11 +17,10 @@ def test_dummy_provider_properties():
     assert not provider_instance.check_url("https://other.com/reviews/product")
 
 
-@patch("product_reviews.providers.providers.dummy.provider.datetime")
-def test_dummy_provider_get_reviews_returns_mock_data(mock_datetime):
+@freeze_time("2020-01-01 12:00:00")
+def test_dummy_provider_get_reviews_returns_mock_data():
     """Test dummy provider returns mock review data with current timestamp."""
-    mock_now = datetime(2020, 1, 1, 12, 0, 0)
-    mock_datetime.now.return_value = mock_now
+    now = datetime(2020, 1, 1, 12, 0, 0)
 
     provider_instance = DummyReviewsProvider()
     result = provider_instance.get_reviews("https://example.com/reviews/product")
@@ -32,12 +32,12 @@ def test_dummy_provider_get_reviews_returns_mock_data(mock_datetime):
     first_review = result.reviews[0]
     assert first_review.rating == 5.0
     assert first_review.text == "This is a dummy review for testing."
-    assert first_review.created_at == mock_now
+    assert first_review.created_at == now
 
     second_review = result.reviews[1]
     assert second_review.rating == 4.0
     assert second_review.text == "Another dummy review."
-    assert second_review.created_at == mock_now
+    assert second_review.created_at == now
 
 
 def test_dummy_provider_module_variable():
