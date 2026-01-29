@@ -27,7 +27,7 @@ def command_scrape(args: argparse.Namespace):
         reviews = ProductReviewsService.parse_reviews(args.url)
     except ReviewsParseException as e:
         print(f"Can't parse reviews. Caused by {e.__cause__!r}")
-        sys.exit(1)
+        return sys.exit(1)
     except Exception as e:
         print(e)
         raise

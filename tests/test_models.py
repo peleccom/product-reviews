@@ -5,6 +5,7 @@ from product_reviews.models import Review, ReviewList
 
 
 def test_review_to_dict():
+    """Test Review model to_dict serialization method."""
     review = Review(
         rating=5.0,
         text="This is a dummy review for testing.",
@@ -17,6 +18,7 @@ def test_review_to_dict():
 
 
 def test_review_to_json():
+    """Test Review model to_json serialization method."""
     review = Review(
         rating=5.0,
         text="This is a dummy review for testing.",
@@ -29,6 +31,7 @@ def test_review_to_json():
 
 
 def test_review_to_representation():
+    """Test Review model to_representation serialization method."""
     review = Review(
         rating=5.0,
         text="This is a dummy review for testing.",
@@ -40,6 +43,7 @@ def test_review_to_representation():
 
 
 def test_review_from_representation():
+    """Test Review model from_representation deserialization method."""
     review = Review(
         rating=5.0,
         text="This is a dummy review for testing.",
@@ -55,6 +59,7 @@ def test_review_from_representation():
 
 
 def test_review_list():
+    """Test ReviewList count method and reviews property."""
     review = Review(
         rating=5.0,
         text="This is a dummy review for testing.",

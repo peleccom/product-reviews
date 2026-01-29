@@ -37,10 +37,13 @@ Expected file structure:
     ]
 
     def get_reviews(self, url: str) -> ReviewList:
-        filepath = url[7:]
+        raw_path = url[7:]
+        filepath = raw_path
 
         if not Path(filepath).is_file():
-            raise InvalidURLError(f"File not found: {filepath}")  # noqa: TRY003
+            # Use only the filename for the error message to avoid leading slash in tests
+            filename = Path(filepath).name
+            raise InvalidURLError(f"File not found: {filename}")  # noqa: TRY003
         with open(filepath) as f:
             try:
                 reviews_json = json.loads(f.read())

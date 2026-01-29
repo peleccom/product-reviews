@@ -98,11 +98,14 @@ class BaseReviewsProvider(ABC):
     def get_reviews(self, url: str) -> ReviewList:
         raise NotImplementedError
 
-    def check_health(self) -> list[HealthCheckResult]:
+    def check_health(self, url: str | None = None) -> list[HealthCheckResult]:
         """
         Check health of the provider by testing all test URLs.
-        Returns a list of HealthCheckResult objects, one for each test URL.
+        If a specific URL is provided, only health-check that URL is evaluated.
+        Returns a list of HealthCheckResult objects, one for each tested URL.
         """
+        if url is not None:
+            return [_get_health_for_url(self, url)]
         if not self.test_urls:
             return [
                 HealthCheckResult(

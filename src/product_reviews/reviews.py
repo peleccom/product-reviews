@@ -2,6 +2,8 @@ import logging
 
 from requests import HTTPError
 
+from product_reviews.providers.loaders import load_all_providers_map
+
 from .models import ProviderReviewList
 from .providers.base import BaseReviewsProvider
 from .providers.exceptions import NoMatchedProvidersException, ReviewsParseException
@@ -49,10 +51,10 @@ class ProductReviewsService:
         return _check_matched_provider(url)
 
     def get_provider_class(self, provider_name: str) -> type[BaseReviewsProvider]:
-        return list_providers()[provider_name]
+        return load_all_providers_map()[provider_name]
 
     def get_provider_names(self) -> list[str]:
-        return list(list_providers().keys())
+        return list(load_all_providers_map().keys())
 
     def get_provider(self, provider_name: str) -> BaseReviewsProvider:
-        return list_providers()[provider_name]()
+        return load_all_providers_map()[provider_name]()

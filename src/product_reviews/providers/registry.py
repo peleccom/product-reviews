@@ -6,7 +6,7 @@ from collections.abc import Iterator
 from product_reviews.providers.base import BaseReviewsProvider
 from product_reviews.providers.exceptions import ProviderLoadError
 
-from .loaders import load_all_providers
+from .loaders import load_all_providers_map
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ def get_provider_for_url(
     providers: dict[str, type[BaseReviewsProvider]] | None = None,
 ) -> type[BaseReviewsProvider]:
     if providers is None:
-        providers = load_all_providers()
+        providers = load_all_providers_map()
 
     for provider_class in providers.values():
         if provider_class.check_url(url):
@@ -30,10 +30,10 @@ def iter_providers(
     providers: dict[str, type[BaseReviewsProvider]] | None = None,
 ) -> Iterator[tuple[str, type[BaseReviewsProvider]]]:
     if providers is None:
-        providers = load_all_providers()
+        providers = load_all_providers_map()
 
     yield from providers.items()
 
 
 def list_providers():
-    return sorted(load_all_providers().values(), key=lambda x: x.name)
+    return sorted(load_all_providers_map().values(), key=lambda x: x.name)
