@@ -1,6 +1,6 @@
 [project]
 name = "product-reviews"
-version = "0.1.0"
+version = "0.1.1"
 description = "A plugin system for product reviews fetcher"
 authors = [{ name = "Alexander Pitkin", email = "peleccom@gmail.com" }]
 readme = "README.md"
