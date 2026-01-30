@@ -39,6 +39,15 @@ def _check_matched_provider(url: str) -> type[BaseReviewsProvider] | None:
 
 
 class ProductReviewsService:
+    """
+    ProductReviewsService is a class that provides an interface to the
+    `product-reviews` plugin system.
+
+    It allows to parse reviews from a given URL, list available providers,
+    and get a provider for a given URL.
+
+    """
+
     @staticmethod
     def parse_reviews(url: str) -> ProviderReviewList:
         return parse_reviews(url)
