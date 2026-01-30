@@ -6,4 +6,41 @@
 [![Commit activity](https://img.shields.io/github/commit-activity/m/peleccom/product-reviews)](https://img.shields.io/github/commit-activity/m/peleccom/product-reviews)
 [![License](https://img.shields.io/github/license/peleccom/product-reviews)](https://img.shields.io/github/license/peleccom/product-reviews)
 
-A plugin system for product reviews fetcher
+A plugin system for product reviews fetcher that allows collecting and analyzing customer reviews from various e-commerce platforms through extensible plugins.
+
+## Installation
+
+```bash
+pip install product-reviews
+```
+or
+```bash
+uv add product-reviews
+```
+
+Or from source:
+
+```bash
+git clone https://github.com/peleccom/product-reviews
+cd product-reviews
+uv sync
+```
+
+## Usage
+
+The CLI provides three main commands:
+
+### List available providers
+```bash
+product-reviews list
+```
+
+### Scrape reviews from a URL
+```bash
+product-reviews scrape <URL>
+```
+
+### Check provider health
+```bash
+product-reviews health [--provider <provider_name>]
+```
