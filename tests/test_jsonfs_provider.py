@@ -3,7 +3,6 @@ from datetime import datetime
 
 import pytest
 
-from product_reviews.models import ReviewList
 from product_reviews.providers.exceptions import InvalidURLError, ReviewsParseException
 from product_reviews.providers.providers.jsonfs import provider
 from product_reviews.providers.providers.jsonfs.provider import JsonFsReviewsProvider
@@ -37,11 +36,10 @@ def test_jsonfs_provider_get_reviews_success(tmp_path):
     provider_instance = JsonFsReviewsProvider()
     result = provider_instance.get_reviews(f"jsonf://{test_file}")
 
-    assert isinstance(result, ReviewList)
-    assert result.count() == 2
-    assert len(result.reviews) == 2
+    assert isinstance(result, list)
+    assert len(result) == 2
 
-    first_review = result.reviews[0]
+    first_review = result[0]
     assert first_review.text == "Great product"
     assert first_review.rating == 5.0
     assert first_review.created_at == datetime(2020, 1, 1, 10, 0, 0)
@@ -112,7 +110,7 @@ def test_jsonfs_provider_get_reviews_with_optional_fields(tmp_path):
     provider_instance = JsonFsReviewsProvider()
     result = provider_instance.get_reviews(f"jsonf://{test_file}")
 
-    review = result.reviews[0]
+    review = result[0]
     assert review.pros == "Good quality"
     assert review.cons == "Expensive"
     assert review.summary == "Good overall"

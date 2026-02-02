@@ -3,7 +3,7 @@ from typing import ClassVar
 from unittest.mock import MagicMock, patch
 
 from product_reviews.cli.health_check import get_all_providers, main, run_health_checks
-from product_reviews.models import Review, ReviewList
+from product_reviews.models import Review
 from product_reviews.providers.base import BaseReviewsProvider
 
 
@@ -11,39 +11,36 @@ class MockHealthyProvider(BaseReviewsProvider):
     name = "HealthyProvider"
     test_urls: ClassVar[list[str]] = ["https://healthy.example/test"]
 
-    def get_reviews(self, url: str) -> ReviewList:
+    def get_reviews(self, url: str) -> list[Review]:
         # Return a valid non-empty list to simulate healthy results
-        reviews = [Review(rating=5.0, text="ok", created_at=datetime.now())]
-        return ReviewList(reviews=reviews)
+        return [Review(rating=5.0, text="ok", created_at=datetime.now())]
 
 
 class MockUnhealthyProvider(BaseReviewsProvider):
     name = "UnhealthyProvider"
     test_urls: ClassVar[list[str]] = ["https://unhealthy.example/test"]
 
-    def get_reviews(self, url: str) -> ReviewList:
+    def get_reviews(self, url: str) -> list[Review]:
         # Return a list with a single invalid review (missing rating)
-        bad_review = Review(rating=None, created_at=datetime.now())
-        return ReviewList(reviews=[bad_review])
+        return [Review(rating=None, created_at=datetime.now())]
 
 
-@patch("product_reviews.cli.health_check.list_providers")
-def test_get_all_providers_filters_ozon_by(mock_list):
+def test_get_all_providers_filters_ozon_by(mock_providers):
     """Test get_all_providers filters out ozon_by provider."""
 
     class OzonProvider(BaseReviewsProvider):
         name = "ozon_by"
 
-        def get_reviews(self, url: str) -> ReviewList:
-            return ReviewList(reviews=[])
+        def get_reviews(self, url: str) -> list[Review]:
+            return []
 
     class OtherProvider(BaseReviewsProvider):
         name = "OtherProvider"
 
-        def get_reviews(self, url: str) -> ReviewList:
-            return ReviewList(reviews=[])
+        def get_reviews(self, url: str) -> list[Review]:
+            return []
 
-    mock_list.return_value = [OzonProvider, OtherProvider]
+    mock_providers([OzonProvider, OtherProvider])
 
     result = get_all_providers()
 

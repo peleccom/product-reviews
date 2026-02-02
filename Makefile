@@ -18,7 +18,12 @@ check: ## Run code quality tools.
 .PHONY: test
 test: ## Test the code with pytest
 	@echo "🚀 Testing code: Running pytest"
-	@uv run python -m pytest --cov --cov-config=pyproject.toml --cov-report=xml
+	@uv run python -m pytest tests/ docs/ --markdown-docs --cov --cov-config=pyproject.toml --cov-report=xml
+
+.PHONY: test-docs
+test-docs: ## Test code examples in documentation
+	@echo "🚀 Testing documentation code examples"
+	@uv run python -m pytest docs/ --markdown-docs -v
 
 .PHONY: check-all
 check-all: test check ## Run all checks

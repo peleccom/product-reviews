@@ -9,14 +9,14 @@ from rich.console import Console
 from rich.table import Table
 
 from product_reviews.providers.base import BaseReviewsProvider
-from product_reviews.reviews import list_providers
+from product_reviews.reviews import _list_providers
 
 console = Console()
 
 
 def get_all_providers() -> list[type[BaseReviewsProvider]]:
     """Get all available review providers."""
-    providers = list_providers()
+    providers = _list_providers()
     # Temporarily filter out ozon_by provider due to browser automation issues
     return [p for p in providers if p.name != "ozon_by"]
 

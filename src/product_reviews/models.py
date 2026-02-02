@@ -7,6 +7,8 @@ from typing import Optional
 
 @dataclass
 class Review:
+    """Review model."""
+
     rating: Optional[float]
     created_at: datetime
     text: Optional[str] = None
@@ -33,7 +35,10 @@ class Review:
 
 
 @dataclass
-class ReviewList:
+class ProviderReviewList:
+    """Review list with provider name."""
+
+    provider: str
     reviews: list[Review]
 
     def count(self) -> int:
@@ -41,12 +46,11 @@ class ReviewList:
 
 
 @dataclass
-class ProviderReviewList(ReviewList):
-    provider: str
-
-
-@dataclass
 class HealthCheckResult:
+    """
+    Health check execution result.
+    """
+
     is_healthy: bool
     message: str
     url: str = ""

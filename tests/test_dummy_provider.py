@@ -2,7 +2,6 @@ from datetime import datetime
 
 from freezegun import freeze_time
 
-from product_reviews.models import ReviewList
 from product_reviews.providers.providers.dummy import provider
 from product_reviews.providers.providers.dummy.provider import DummyReviewsProvider
 
@@ -25,16 +24,15 @@ def test_dummy_provider_get_reviews_returns_mock_data():
     provider_instance = DummyReviewsProvider()
     result = provider_instance.get_reviews("https://example.com/reviews/product")
 
-    assert isinstance(result, ReviewList)
-    assert result.count() == 2
-    assert len(result.reviews) == 2
+    assert isinstance(result, list)
+    assert len(result) == 2
 
-    first_review = result.reviews[0]
+    first_review = result[0]
     assert first_review.rating == 5.0
     assert first_review.text == "This is a dummy review for testing."
     assert first_review.created_at == now
 
-    second_review = result.reviews[1]
+    second_review = result[1]
     assert second_review.rating == 4.0
     assert second_review.text == "Another dummy review."
     assert second_review.created_at == now

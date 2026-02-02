@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import ClassVar
 
-from product_reviews.models import Review, ReviewList
+from product_reviews.models import Review
 from product_reviews.providers.base import BaseReviewsProvider
 
 
@@ -14,18 +14,16 @@ class MockReviewsProvider(BaseReviewsProvider):
     class TestProviderError(Exception):
         pass
 
-    def get_reviews(self, url: str) -> ReviewList:
+    def get_reviews(self, url: str) -> list[Review]:
         if "error" in url:
             raise MockReviewsProvider.TestProviderError()
         if "empty" in url:
-            return ReviewList(reviews=[])
+            return []
 
-        return ReviewList(
-            reviews=[
-                Review(rating=5.0, text="Great product", created_at=datetime(2020, 1, 1)),
-                Review(rating=3.0, text="Average product", created_at=datetime(2020, 1, 2)),
-            ]
-        )
+        return [
+            Review(rating=5.0, text="Great product", created_at=datetime(2020, 1, 1)),
+            Review(rating=3.0, text="Average product", created_at=datetime(2020, 1, 2)),
+        ]
 
 
 def test_base_provider_check_url_with_string_regex():
@@ -48,8 +46,8 @@ def test_base_provider_check_health_no_test_urls():
         name = "NoTestUrlsProvider"
         test_urls: ClassVar[list[str]] = []
 
-        def get_reviews(self, url: str) -> ReviewList:
-            return ReviewList(reviews=[])
+        def get_reviews(self, url: str) -> list[Review]:
+            return []
 
     provider_instance = NoTestUrlsProvider()
     results = provider_instance.check_health()

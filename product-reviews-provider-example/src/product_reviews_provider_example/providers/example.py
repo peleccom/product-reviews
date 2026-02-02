@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import ClassVar
 
-from product_reviews.models import Review, ReviewList
+from product_reviews.models import Review
 from product_reviews.providers.base import BaseReviewsProvider
 
 
@@ -16,8 +16,8 @@ class ExampleReviewsProvider(BaseReviewsProvider):
         "https://example.com/products/product-2",
     ]
 
-    def get_reviews(self, url: str) -> ReviewList:
-        reviews = [
+    def get_reviews(self, url: str) -> list[Review]:
+        return [
             Review(
                 rating=5.0,
                 text="This is an example review for testing purposes.",
@@ -29,7 +29,3 @@ class ExampleReviewsProvider(BaseReviewsProvider):
                 created_at=datetime.now(),
             ),
         ]
-        review_list = ReviewList(
-            reviews=reviews,
-        )
-        return review_list

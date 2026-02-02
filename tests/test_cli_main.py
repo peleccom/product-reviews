@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from product_reviews.cli.main import main
-from product_reviews.models import ProviderReviewList, Review, ReviewList
+from product_reviews.models import ProviderReviewList, Review
 from product_reviews.providers.base import BaseReviewsProvider
 from product_reviews.providers.exceptions import ReviewsParseException
 
@@ -21,8 +21,8 @@ def test_command_list(mock_logger, mock_providers, monkeypatch, capsys):
         notes = "Test notes"
         url_regex = r"https?://test\.com/.*"
 
-        def get_reviews(self, url: str) -> ReviewList:
-            return ReviewList(reviews=[])
+        def get_reviews(self, url: str) -> list[Review]:
+            return []
 
     mock_providers([TestProvider])
 
@@ -94,8 +94,8 @@ def test_command_health_success(mock_logger, mock_health, mock_providers, monkey
     class TestProvider(BaseReviewsProvider):
         name = "TestProvider"
 
-        def get_reviews(self, url: str) -> ReviewList:
-            return ReviewList(reviews=[])
+        def get_reviews(self, url: str) -> list[Review]:
+            return []
 
     mock_providers([TestProvider])
     mock_health.return_value = True
@@ -116,8 +116,8 @@ def test_command_health_provider_not_found(mock_logger, mock_health, mock_provid
     class TestProvider(BaseReviewsProvider):
         name = "TestProvider"
 
-        def get_reviews(self, url: str) -> ReviewList:
-            return ReviewList(reviews=[])
+        def get_reviews(self, url: str) -> list[Review]:
+            return []
 
     mock_providers([TestProvider])
 

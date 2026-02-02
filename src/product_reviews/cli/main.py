@@ -16,15 +16,16 @@ def command_list(args: argparse.Namespace):
         print("*" * 50)
         print(f"Name: {p.name}")
         print(f"Description: {p.description}")
-        if hasattr(p, "notes"):
+        if hasattr(p, "notes") and p.notes:
             print(f"Notes: {p.notes.strip()}")
         print(f"Pattern: {provider().url_regex}")
         print("-" * 50 + "\n")
 
 
 def command_scrape(args: argparse.Namespace):
+    service = ProductReviewsService()
     try:
-        reviews = ProductReviewsService.parse_reviews(args.url)
+        reviews = service.parse_reviews(args.url)
     except ReviewsParseException as e:
         print(f"Can't parse reviews. Caused by {e.__cause__!r}")
         return sys.exit(1)
@@ -33,7 +34,6 @@ def command_scrape(args: argparse.Namespace):
         raise
 
     print(f"Provider: {reviews.provider}\n")
-    # Print the results
     for item in reviews.reviews:
         print(item.to_dict(), end="\n\n")
     print(f"Count: {reviews.count()}")
@@ -43,7 +43,8 @@ def command_scrape(args: argparse.Namespace):
 def command_health(args: argparse.Namespace):
     providers = None
     if args.provider:
-        providers = [p for p in ProductReviewsService.list_providers() if p().name.lower() == args.provider.lower()]
+        service = ProductReviewsService()
+        providers = [p for p in service.list_providers() if p().name.lower() == args.provider.lower()]
         if not providers:
             print(f"Error: Provider '{args.provider}' not found")
             sys.exit(1)

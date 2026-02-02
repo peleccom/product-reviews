@@ -1,10 +1,11 @@
 import json
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 
 from product_reviews.providers.exceptions import NoMatchedProvidersException
 from product_reviews.providers.providers.dummy.provider import DummyReviewsProvider
+from product_reviews.providers.registry import Registry
 from product_reviews.reviews import ProductReviewsService
 
 
@@ -51,19 +52,20 @@ def test_end_to_end_error_handling(mock_check):
         service.parse_reviews("https://unknown-provider.com/product")
 
 
-@patch("product_reviews.reviews._check_matched_provider")
-def test_end_to_end_provider_selection(mock_check):
+def test_end_to_end_provider_selection():
     """Test end-to-end provider selection functionality."""
-    mock_check.return_value = DummyReviewsProvider
+
+    mock_registry = Mock(spec=Registry)
+    mock_registry.get_provider_for_url.return_value = DummyReviewsProvider
+    mock_registry.get_provider.return_value = DummyReviewsProvider()
+
+    service = ProductReviewsService(registry=mock_registry)
 
     url = "https://example.com/reviews/test"
-    service = ProductReviewsService()
-
     provider_class = service.get_provider_for_url(url)
     assert provider_class == DummyReviewsProvider
 
     provider_instance = service.get_provider("dummy")
-    # Check actual class from the instance itself
     assert provider_instance.__class__.__name__ == "DummyReviewsProvider"
 
 

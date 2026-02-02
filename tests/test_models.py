@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-from product_reviews.models import Review, ReviewList
+from product_reviews.models import ProviderReviewList, Review
 
 
 def test_review_to_dict():
@@ -58,13 +58,13 @@ def test_review_from_representation():
     assert restored_review.summary is None
 
 
-def test_review_list():
-    """Test ReviewList count method and reviews property."""
+def test_provider_review_list():
+    """Test ProviderReviewList count method and reviews property."""
     review = Review(
         rating=5.0,
         text="This is a dummy review for testing.",
         created_at=datetime(2020, 1, 1),
     )
-    review_list = ReviewList(reviews=[review])
-    assert review_list.count() == 1
-    assert len(review_list.reviews) == 1
+    provider_review_list = ProviderReviewList(provider="test", reviews=[review])
+    assert provider_review_list.count() == 1
+    assert len(provider_review_list.reviews) == 1

@@ -5,7 +5,7 @@ import re
 from abc import ABC, abstractmethod
 from typing import ClassVar
 
-from product_reviews.models import HealthCheckResult, Review, ReviewList
+from product_reviews.models import HealthCheckResult, Review
 
 logger = logging.getLogger(__name__)
 
@@ -29,14 +29,14 @@ class ReviewListValidator:
         if review.summary and not isinstance(review.summary, str):
             raise ReviewValidationError("Review summary must be a string")  # noqa: TRY003
 
-    def check_reviews_count(self, review_list: ReviewList):
-        if not review_list or review_list.count() == 0:
+    def check_reviews_count(self, reviews: list[Review]):
+        if not reviews or len(reviews) == 0:
             raise ReviewValidationError("No reviews found")  # noqa: TRY003
 
 
 def _get_health_for_url(provider: BaseReviewsProvider, url: str) -> HealthCheckResult:
     try:
-        review_list = provider.get_reviews(url)
+        reviews = provider.get_reviews(url)
     except Exception as e:
         return HealthCheckResult(
             is_healthy=False,
@@ -46,7 +46,7 @@ def _get_health_for_url(provider: BaseReviewsProvider, url: str) -> HealthCheckR
         )
 
     try:
-        ReviewListValidator().check_reviews_count(review_list)
+        ReviewListValidator().check_reviews_count(reviews)
     except ReviewValidationError:
         return HealthCheckResult(
             is_healthy=False,
@@ -56,7 +56,7 @@ def _get_health_for_url(provider: BaseReviewsProvider, url: str) -> HealthCheckR
         )
 
     try:
-        for review in review_list.reviews:
+        for review in reviews:
             ReviewListValidator().check_review_fields(review)
     except ReviewValidationError:
         return HealthCheckResult(
@@ -70,11 +70,15 @@ def _get_health_for_url(provider: BaseReviewsProvider, url: str) -> HealthCheckR
         is_healthy=True,
         message="Successfully fetched reviews",
         url=url,
-        reviews_count=review_list.count(),
+        reviews_count=len(reviews),
     )
 
 
 class BaseReviewsProvider(ABC):
+    """
+    Base class for all review providers.
+    """
+
     name: ClassVar[str]
     description: ClassVar[str]
     notes: ClassVar[str | None]
@@ -95,7 +99,7 @@ class BaseReviewsProvider(ABC):
         return False
 
     @abstractmethod
-    def get_reviews(self, url: str) -> ReviewList:
+    def get_reviews(self, url: str) -> list[Review]:
         raise NotImplementedError
 
     def check_health(self, url: str | None = None) -> list[HealthCheckResult]:
