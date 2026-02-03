@@ -80,3 +80,18 @@ def test_multiple_provider_types_loaded():
 
     assert "dummy" in provider_names
     assert "JSON FS" in provider_names
+
+
+def test_default_plugins_available_with_custom_plugins_dir(tmp_path, monkeypatch):
+    """Test that default plugins (dummy and JSON FS) are available when CUSTOM_PLUGINS_DIR is set."""
+    custom_plugins_dir = tmp_path / "custom_plugins"
+    custom_plugins_dir.mkdir()
+
+    monkeypatch.setenv("PRODUCT_REVIEWS_PLUGINS_DIR", str(custom_plugins_dir))
+
+    service = ProductReviewsService()
+
+    provider_names = service.get_provider_names()
+
+    assert "dummy" in provider_names, "dummy provider should be available"
+    assert "JSON FS" in provider_names, "JSON FS provider should be available"

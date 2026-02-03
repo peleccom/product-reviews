@@ -42,7 +42,13 @@ def test_load_all_providers(mock_fs, mock_entry):
 @patch("product_reviews.providers.loaders.load_entry_point_providers")
 @patch("product_reviews.providers.loaders.load_fs_providers")
 def test_load_all_providers_with_custom_dir(mock_fs, mock_entry):
-    """Test load_all_providers_map with custom directory."""
+    """Test load_all_providers_map with custom directory includes local + custom providers."""
+
+    class LocalFsProvider(BaseReviewsProvider):
+        name = "LocalFsProvider"
+
+        def get_reviews(self, url: str) -> list[Review]:
+            return []
 
     class CustomFsProvider(BaseReviewsProvider):
         name = "CustomFsProvider"
@@ -52,14 +58,16 @@ def test_load_all_providers_with_custom_dir(mock_fs, mock_entry):
 
     custom_dir = Path("/custom/path")
     mock_entry.return_value = []
-    mock_fs.return_value = [CustomFsProvider]
+    mock_fs.side_effect = [[LocalFsProvider], [CustomFsProvider]]
 
     result = load_all_providers_map(plugins_dir=custom_dir)
 
-    assert len(result) == 1
+    assert len(result) == 2
+    assert result["LocalFsProvider"] == LocalFsProvider
     assert result["CustomFsProvider"] == CustomFsProvider
     mock_entry.assert_called_once()
-    mock_fs.assert_called_once_with(custom_dir)
+    assert mock_fs.call_count == 2
+    mock_fs.assert_called_with(custom_dir)
 
 
 @patch("product_reviews.providers.loaders.load_entry_point_providers")
@@ -73,7 +81,7 @@ def test_load_all_providers_no_providers(mock_fs, mock_entry):
 
     assert len(result) == 0
     mock_entry.assert_called_once()
-    mock_fs.assert_called_once()
+    mock_fs.assert_called_once()  # Only called once without args when plugins_dir is None
 
 
 def test_get_plugins_dir_from_env():

@@ -21,7 +21,11 @@ def get_plugins_dir() -> Path | None:
 
 
 def iter_all_providers(plugins_dir: Path | None = None):
-    return chain(load_entry_point_providers(), load_fs_providers(plugins_dir))
+    return chain(
+        load_entry_point_providers(),
+        load_fs_providers(),  # Always include local providers
+        load_fs_providers(plugins_dir) if plugins_dir else (),  # Add custom plugins if specified
+    )
 
 
 def load_all_providers_map(
