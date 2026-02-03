@@ -2,24 +2,39 @@ import argparse
 import logging
 import sys
 
+from rich.console import Console
+from rich.table import Table
+
 from product_reviews.cli.health_check import run_health_checks
 from product_reviews.providers.exceptions import ReviewsParseException
 from product_reviews.providers.registry import list_providers
 from product_reviews.reviews import ProductReviewsService
 
 logger = logging.getLogger("product-reviews")
+console = Console()
 
 
 def command_list(args: argparse.Namespace):
-    for provider in list_providers():
+    providers = list_providers()
+
+    table = Table(title="Review Providers")
+    table.add_column("Name", style="cyan")
+    table.add_column("Description", style="green")
+    table.add_column("Pattern", style="magenta")
+    table.add_column("Notes", style="yellow")
+
+    for provider in providers:
         p = provider()
-        print("*" * 50)
-        print(f"Name: {p.name}")
-        print(f"Description: {p.description}")
-        if hasattr(p, "notes") and p.notes:
-            print(f"Notes: {p.notes.strip()}")
-        print(f"Pattern: {provider().url_regex}")
-        print("-" * 50 + "\n")
+        notes = p.notes.strip() if hasattr(p, "notes") and p.notes else "-"
+        pattern = p.url_regex if isinstance(p.url_regex, str) else p.url_regex.pattern
+        table.add_row(
+            p.name,
+            p.description,
+            pattern,
+            notes,
+        )
+
+    console.print(table)
 
 
 def command_scrape(args: argparse.Namespace):

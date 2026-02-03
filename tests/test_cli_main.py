@@ -30,10 +30,10 @@ def test_command_list(mock_logger, mock_providers, monkeypatch, capsys):
     main()
     captured = capsys.readouterr()
 
-    assert "*" * 50 in captured.out
-    assert "Name: TestProvider" in captured.out
-    assert "Description: Test provider description" in captured.out
-    assert "Notes: Test notes" in captured.out
+    assert "Review Providers" in captured.out
+    assert "TestProvider" in captured.out
+    assert "Test notes" in captured.out
+    assert r"https?://test\.com/.*" in captured.out
 
 
 @patch("product_reviews.cli.main.ProductReviewsService.parse_reviews")
