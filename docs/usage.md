@@ -34,7 +34,7 @@ Test the health and availability of providers:
 product-reviews health
 
 # Check specific provider
-product-reviews health --provider jsonfs
+product-reviews health --provider "JSON FS"
 ```
 
 ## Python API Usage
@@ -124,7 +124,7 @@ export PRODUCT_REVIEWS_PLUGINS_DIR=/path/to/your/plugins
 
 Or programmatically:
 
-```python fixture:clear_plugins_dir_env
+```python
 import os
 from product_reviews import get_plugins_dir
 
