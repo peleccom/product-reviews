@@ -43,6 +43,7 @@ def run_health_checks(providers: Union[list[type[BaseReviewsProvider]], None] = 
 
     all_healthy = True
     total_providers = len(providers)
+    last_provider_name = None
 
     with console.status("[bold green]Running health checks...") as status:
         for idx, provider_class in enumerate(providers, 1):
@@ -51,12 +52,15 @@ def run_health_checks(providers: Union[list[type[BaseReviewsProvider]], None] = 
 
             results = provider.check_health()
 
-            for result in results:
+            for result_idx, result in enumerate(results):
                 check_mark = "✓" if result.is_healthy else "✗"
                 status_style = "green" if result.is_healthy else "red"
 
+                provider_cell = "" if result_idx > 0 and provider.name == last_provider_name else provider.name
+                last_provider_name = provider.name
+
                 table.add_row(
-                    provider.name,
+                    provider_cell,
                     check_mark,
                     str(result.reviews_count),
                     result.message,
@@ -65,6 +69,9 @@ def run_health_checks(providers: Union[list[type[BaseReviewsProvider]], None] = 
 
                 if not result.is_healthy:
                     all_healthy = False
+
+            if idx < len(providers):
+                table.add_section()
 
     console.print(table)
     return all_healthy
