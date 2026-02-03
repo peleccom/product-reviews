@@ -23,16 +23,19 @@ def command_list(args: argparse.Namespace):
     table.add_column("Pattern", style="magenta")
     table.add_column("Notes", style="yellow")
 
-    for provider in providers:
+    for idx, provider in enumerate(providers):
         p = provider()
         notes = p.notes.strip() if hasattr(p, "notes") and p.notes else "-"
-        pattern = p.url_regex if isinstance(p.url_regex, str) else p.url_regex.pattern
+        pattern = str(p.url_regex) if isinstance(p.url_regex, str) else "\n".join(map(str, p.url_regex))
         table.add_row(
             p.name,
             p.description,
             pattern,
             notes,
         )
+
+        if idx < len(providers) - 1:
+            table.add_section()
 
     console.print(table)
 

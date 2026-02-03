@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-from re import Pattern
 from typing import ClassVar
 
 from product_reviews.models import Review
@@ -31,7 +30,7 @@ Expected file structure:
 }
     """
 
-    url_regex: ClassVar[str | Pattern[str]] = r"jsonf://"
+    url_regex: ClassVar[list[str] | str] = r"jsonf://"
     test_urls: ClassVar[list[str]] = [
         f"json://{(script_file / 'tests' / 'data' / '1.json').as_posix()}",
     ]

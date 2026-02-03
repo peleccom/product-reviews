@@ -82,7 +82,7 @@ class BaseReviewsProvider(ABC):
     name: ClassVar[str]
     description: ClassVar[str]
     notes: ClassVar[str | None]
-    url_regex: ClassVar[str | re.Pattern[str]]
+    url_regex: ClassVar[list[str] | str]
     test_urls: ClassVar[list[str]] = []
 
     @classmethod

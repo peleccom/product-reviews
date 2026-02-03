@@ -1,5 +1,4 @@
 from datetime import datetime
-from re import Pattern
 from typing import ClassVar
 
 from product_reviews.models import Review
@@ -9,7 +8,10 @@ from product_reviews.providers.base import BaseReviewsProvider
 class DummyReviewsProvider(BaseReviewsProvider):
     name: ClassVar[str] = "dummy"
     description: ClassVar[str] = "A dummy provider for testing."
-    url_regex: ClassVar[str | Pattern[str]] = r"https?://example\.com/reviews/.*"
+    url_regex: ClassVar[list[str] | str] = [
+        r"https?://example\.com/reviews/.*",
+        r"https?://dummy\.com/reviews/.*",
+    ]
     test_urls: ClassVar[list[str]] = [
         "https://example.com/reviews/product-1",
         "https://example.com/reviews/product-2",
