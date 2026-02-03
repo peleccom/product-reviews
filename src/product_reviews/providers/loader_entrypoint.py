@@ -22,4 +22,4 @@ def load_entry_point_providers() -> Generator[type[BaseReviewsProvider], None, N
             logger.debug(f"Loaded provider {ep.name!r} from entry point")
             yield provider_class
         except Exception as e:
-            logger.warning(f"Failed to load provider {ep.name!r}: {e}")
+            logger.warning(f"Failed to load provider {ep.name!r}: {e}", stack_info=True)

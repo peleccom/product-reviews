@@ -43,7 +43,7 @@ def load_fs_provider(provider_path: Path) -> type[BaseReviewsProvider] | None:
         logger.debug(f"Loaded provider {provider_class.name!r} from {provider_path}")
         return provider_class  # noqa: TRY300
     except Exception as e:
-        logger.warning(f"Failed to load provider from {provider_path}: {e}")
+        logger.warning(f"Failed to load provider from {provider_path}: {e}", exc_info=True)
         return None
 
 
