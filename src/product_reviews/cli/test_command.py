@@ -81,11 +81,23 @@ def run_pytest(provider_name: str | None = None, verbose: bool = False) -> int:
         cmd.append("--tb=short")
 
     # Get product-reviews package directory
-    package_dir = Path(__file__).parent.parent.parent.parent
+    package_dir = Path(__file__).parent.parent.parent
+
+    # Explicitly pass tests directory from installed package
     tests_dir = package_dir / "tests"
 
-    # Run pytest from package directory
-    # Don't add tests directory as argument - let pytest discover from cwd
+    # Override rootdir and config to prevent picking up local files
+    cmd.extend([
+        "--rootdir",
+        str(package_dir),
+        "--override-ini",
+        str(package_dir / "pyproject.toml"),
+    ])
+
+    # Add tests directory explicitly
+    cmd.append(str(tests_dir))
+
+    # Run pytest
     result = subprocess.run(cmd, capture_output=False, text=True, cwd=str(package_dir))
     return result.returncode
 
