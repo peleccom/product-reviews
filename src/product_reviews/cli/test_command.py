@@ -124,12 +124,19 @@ def command_test(args: argparse.Namespace) -> int:
     is_external = package_dir != Path.cwd()
 
     if args.provider_class:
-        # External provider: use custom provider class
+        # External provider: directly use the specified provider class
         try:
-            provider_class = args.provider_class
-            console.print(f"[bold blue]Testing external provider: {provider_class.__name__}[/bold blue]")
+            # Import and instantiate the provider class
+            import importlib
+
+            module_path, class_name = args.provider_class.rsplit(".", 1)
+            module = importlib.import_module(module_path)
+            provider_class = getattr(module, class_name)
+
+            console.print(f"[bold blue]Testing external provider: {class_name}[/bold blue]")
             success = record_provider(provider_class, re_record=re_record)
             if not success:
+                console.print("\n[red]Recording failed. Fix parser before running tests.[/red]")
                 return 1
             console.print("\n[green]Recording completed. Tests passed![/green]")
             return 0
@@ -146,7 +153,7 @@ def command_test(args: argparse.Namespace) -> int:
             return 1
         providers = [provider_class]
     else:
-        console.print("[red]Error: Specify --provider or --all[/red]")
+        console.print("[red]Error: Specify --provider-class, --provider, or --all[/red]")
         return 1
 
     # Process each provider
@@ -159,6 +166,9 @@ def command_test(args: argparse.Namespace) -> int:
         if needs_recording:
             success = record_provider(provider_class, re_record=re_record)
             if not success:
+                console.print(
+                    f"\n[red]ERROR: Recording failed for {provider_name}. Fix parser before running tests.[/red]"
+                )
                 return 1
         else:
             console.print(f"[green]Using cached responses for {provider_name}[/green]")
