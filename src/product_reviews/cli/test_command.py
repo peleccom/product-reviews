@@ -113,6 +113,10 @@ def command_test(args: argparse.Namespace) -> int:
     cache = ResponseCache()
     re_record = args.re_record
 
+    # Detect if we're running from product-reviews or external package
+    package_dir = Path(__file__).parent.parent.parent
+    is_external = package_dir != Path.cwd()
+
     if args.all:
         # Test all providers
         providers = list_providers()
@@ -136,19 +140,29 @@ def command_test(args: argparse.Namespace) -> int:
         needs_recording = re_record or not cache.has_cached_responses(provider_name)
 
         if needs_recording:
+            console.print(f"[bold blue]Recording responses for {provider_name}...[/bold blue]")
             success = record_provider(provider_class, re_record=re_record)
             if not success:
+                console.print(
+                    f"\n[red]ERROR: Recording failed for {provider_name}. Fix parser before running tests.[/red]"
+                )
                 return 1
         else:
             console.print(f"[green]Using cached responses for {provider_name}[/green]")
 
-    # Run pytest
-    if len(providers) == 1:
-        provider_name = providers[0]().name
-    else:
-        provider_name = None
+    # Run pytest only if we're in product-reviews package
+    # For external packages, just verify recording succeeded
+    if not is_external:
+        if len(providers) == 1:
+            provider_name = providers[0]().name
+        else:
+            provider_name = None
 
-    return run_pytest(provider_name, verbose=args.verbose)
+        return run_pytest(provider_name, verbose=args.verbose)
+    else:
+        console.print("\n[green]Recording completed. Skipping pytest for external package.[/green]")
+        console.print("[dim]To run tests, define them in your own tests/ directory.[/dim]")
+        return 0
 
 
 def main_test_command() -> int:

@@ -11,6 +11,7 @@ from .providers.exceptions import (
 from .providers.loaders import ENV_PLUGINS_DIR, get_plugins_dir
 from .providers.registry import Registry
 from .reviews import ProductReviewsService
+from .testing import ResponseCache
 
 __all__ = [
     "ENV_PLUGINS_DIR",
@@ -24,6 +25,7 @@ __all__ = [
     "ProviderReviewList",
     "Registry",
     "Review",
+    "ResponseCache",
     "ReviewsParseException",
     "get_plugins_dir",
 ]
