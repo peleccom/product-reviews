@@ -6,6 +6,7 @@ from rich.console import Console
 from rich.table import Table
 
 from product_reviews.cli.health_check import run_health_checks
+from product_reviews.cli.test_command import command_test
 from product_reviews.providers.exceptions import ReviewsParseException
 from product_reviews.providers.registry import list_providers
 from product_reviews.reviews import ProductReviewsService
@@ -71,6 +72,11 @@ def command_health(args: argparse.Namespace):
     sys.exit(0 if success else 1)
 
 
+def handle_test_command(args: argparse.Namespace):
+    return_code = command_test(args)
+    sys.exit(return_code)
+
+
 def main() -> None:
     # Set up the argument parser
     parser = argparse.ArgumentParser(description="CLI app to scrape reviews and check providers health.")
@@ -88,6 +94,13 @@ def main() -> None:
     # List providers command
     subparsers.add_parser("list", help="List providers")
 
+    # Test command (records and runs tests)
+    test_parser = subparsers.add_parser("test", help="Test providers with cached responses")
+    test_parser.add_argument("--provider", type=str, help="Test specific provider (by name)")
+    test_parser.add_argument("--all", action="store_true", help="Test all providers")
+    test_parser.add_argument("--re-record", action="store_true", help="Force re-recording")
+    test_parser.add_argument("--verbose", action="store_true", help="Verbose output")
+
     # Parse the arguments
     args = parser.parse_args()
 
@@ -100,6 +113,8 @@ def main() -> None:
         return command_health(args)
     elif args.command == "list":
         return command_list(args)
+    elif args.command == "test":
+        return handle_test_command(args)
 
 
 if __name__ == "__main__":
