@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import pytest
 import responses
 
 from product_reviews.providers.base import BaseReviewsProvider

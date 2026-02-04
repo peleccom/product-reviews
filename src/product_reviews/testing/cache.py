@@ -5,7 +5,6 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 from product_reviews.models import Review
 
@@ -53,8 +52,9 @@ class ResponseCache:
                 except ImportError:
                     Console = None
                 if Console:
-                    from rich.logging import RichHandler
                     import logging
+
+                    from rich.logging import RichHandler
 
                     logger = logging.getLogger("product_reviews.testing")
                     logger.addHandler(RichHandler(rich_tracebacks=True))

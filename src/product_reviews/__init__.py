@@ -24,8 +24,8 @@ __all__ = [
     "ProviderNotReadyError",
     "ProviderReviewList",
     "Registry",
-    "Review",
     "ResponseCache",
+    "Review",
     "ReviewsParseException",
     "get_plugins_dir",
 ]

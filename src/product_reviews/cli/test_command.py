@@ -112,6 +112,7 @@ def command_test(args: argparse.Namespace) -> int:
     For external packages, this is sufficient (no separate pytest needed).
     """
     import os
+
     cache_dir = args.cache_dir
     if cache_dir:
         os.environ["PRODUCT_REVIEWS_CACHE_DIR"] = cache_dir
@@ -134,10 +135,6 @@ def command_test(args: argparse.Namespace) -> int:
     else:
         console.print("[red]Error: Specify --provider or --all[/red]")
         return 1
-        providers = [provider_class]
-    else:
-        console.print("[red]Error: Specify --provider or --all[/red]")
-        return 1
 
     # Process each provider
     for provider_class in providers:
@@ -147,17 +144,13 @@ def command_test(args: argparse.Namespace) -> int:
         needs_recording = re_record or not cache.has_cached_responses(provider_name)
 
         if needs_recording:
-            console.print(f"[bold blue]Recording responses for {provider_name}...[/bold blue]")
             success = record_provider(provider_class, re_record=re_record)
             if not success:
-                console.print(
-                    f"\n[red]ERROR: Recording failed for {provider_name}. Fix parser before running tests.[/red]"
-                )
                 return 1
         else:
             console.print(f"[green]Using cached responses for {provider_name}[/green]")
 
-    # Recording IS the test - no separate pytest needed
+    # Recording IS test - no separate pytest needed
     # For external packages, recording is sufficient
     # For internal (product-reviews), run pytest for unit tests of testing infrastructure
     if is_external:
@@ -174,6 +167,9 @@ def main_test_command() -> int:
     parser.add_argument("--all", action="store_true", help="Test all providers")
     parser.add_argument("--re-record", action="store_true", help="Force re-recording of responses")
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
+    parser.add_argument(
+        "--cache-dir", type=str, help="Cache directory (default: use package location or local tests/fixtures)"
+    )
 
     args = parser.parse_args()
     return command_test(args)

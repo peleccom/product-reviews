@@ -7,7 +7,7 @@ from product_reviews.testing.recorder import RecordingResult, ResponseRecorder
 
 __all__ = [
     "CachedResponse",
-    "ResponseCache",
     "RecordingResult",
+    "ResponseCache",
     "ResponseRecorder",
 ]
