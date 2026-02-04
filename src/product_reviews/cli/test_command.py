@@ -7,11 +7,11 @@ import logging
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 from rich.console import Console
 
 from product_reviews.providers.base import BaseReviewsProvider
-from product_reviews.providers.registry import list_providers
 from product_reviews.testing.cache import ResponseCache
 from product_reviews.testing.recorder import ResponseRecorder
 
@@ -20,10 +20,9 @@ console = Console()
 
 
 def get_provider_by_name(name: str) -> type[BaseReviewsProvider] | None:
-    """Get a provider class by name."""
+    """Get a provider class by name from installed product-reviews providers."""
     providers = list_providers()
     provider_names = [p().name for p in providers]
-    console.print(f"[dim]Available providers: {provider_names}[/dim]")
     for provider_class in providers:
         if provider_class().name.lower() == name.lower():
             return provider_class
@@ -124,6 +123,20 @@ def command_test(args: argparse.Namespace) -> int:
     package_dir = Path(__file__).parent.parent.parent
     is_external = package_dir != Path.cwd()
 
+    if args.provider_class:
+        # External provider: use custom provider class
+        try:
+            provider_class = args.provider_class
+            console.print(f"[bold blue]Testing external provider: {provider_class.__name__}[/bold blue]")
+            success = record_provider(provider_class, re_record=re_record)
+            if not success:
+                return 1
+            console.print("\n[green]Recording completed. Tests passed![/green]")
+            return 0
+        except Exception as e:
+            console.print(f"[red]Error loading provider: {e}[/red]")
+            return 1
+
     if args.all:
         providers = list_providers()
     elif args.provider:
@@ -150,7 +163,7 @@ def command_test(args: argparse.Namespace) -> int:
         else:
             console.print(f"[green]Using cached responses for {provider_name}[/green]")
 
-    # Recording IS the test - no separate pytest needed
+    # Recording IS test - no separate pytest needed
     # For external packages, recording is sufficient
     # For internal (product-reviews), run pytest for unit tests of testing infrastructure
     if is_external:
@@ -170,6 +183,7 @@ def main_test_command() -> int:
     parser.add_argument(
         "--cache-dir", type=str, help="Cache directory (default: use package location or local tests/fixtures)"
     )
+    parser.add_argument("--provider-class", type=str, help="External provider class (module.ClassName)")
 
     args = parser.parse_args()
     return command_test(args)
