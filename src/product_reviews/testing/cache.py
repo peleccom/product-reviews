@@ -32,7 +32,20 @@ class ResponseCache:
 
     def __init__(self, base_path: str | Path | None = None):
         if base_path is None:
-            base_path = Path(__file__).parent.parent.parent.parent / "tests" / "fixtures" / "responses"
+            # __file__ is in src/product_reviews/testing/cache.py
+            # We need to go up to the repo root (before src/)
+            # If in src/ directory: parent.parent.parent = repo root
+            # If in site-packages: use different logic
+            file_path = Path(__file__).resolve()
+            src_dir = file_path.parent.parent.parent
+            if src_dir.name == "src":
+                # We're in src/product_reviews/testing, go up to repo root
+                repo_root = src_dir.parent
+            else:
+                # We're in site-packages or other location
+                # Use src/tests/fixtures/responses relative to package
+                repo_root = src_dir
+            base_path = repo_root / "tests" / "fixtures" / "responses"
         self.base_path = Path(base_path)
         self.base_path.mkdir(parents=True, exist_ok=True)
 

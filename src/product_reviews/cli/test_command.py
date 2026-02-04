@@ -80,13 +80,12 @@ def run_pytest(provider_name: str | None = None, verbose: bool = False) -> int:
     if not verbose:
         cmd.append("--tb=short")
 
-    # Get the product-reviews package directory
+    # Get product-reviews package directory
     package_dir = Path(__file__).parent.parent.parent.parent
     tests_dir = package_dir / "tests"
 
-    cmd.append(str(tests_dir))
-
-    # Run pytest
+    # Run pytest from package directory
+    # Don't add tests directory as argument - let pytest discover from cwd
     result = subprocess.run(cmd, capture_output=False, text=True, cwd=str(package_dir))
     return result.returncode
 
