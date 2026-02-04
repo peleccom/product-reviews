@@ -7,11 +7,11 @@ import logging
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any
 
 from rich.console import Console
 
 from product_reviews.providers.base import BaseReviewsProvider
+from product_reviews.providers.registry import list_providers
 from product_reviews.testing.cache import ResponseCache
 from product_reviews.testing.recorder import ResponseRecorder
 
@@ -22,7 +22,7 @@ console = Console()
 def get_provider_by_name(name: str) -> type[BaseReviewsProvider] | None:
     """Get a provider class by name from installed product-reviews providers."""
     providers = list_providers()
-    provider_names = [p().name for p in providers]
+    [p().name for p in providers]
     for provider_class in providers:
         if provider_class().name.lower() == name.lower():
             return provider_class
