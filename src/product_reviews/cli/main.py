@@ -98,10 +98,11 @@ def main() -> None:
     test_parser = subparsers.add_parser("test", help="Test providers with cached responses")
     test_parser.add_argument("--provider", type=str, help="Test specific provider (by name)")
     test_parser.add_argument("--all", action="store_true", help="Test all providers")
-    test_parser.add_argument("--re-record", action="store_true", help="Force re-recording")
+    test_parser.add_argument("--re-record", action="store_true", help="Force re-recording of responses")
     test_parser.add_argument("--verbose", action="store_true", help="Verbose output")
+    test_parser.add_argument("--provider-class", type=str, help="External provider class (module.ClassName)")
 
-    # Parse the arguments
+    # Parse arguments
     args = parser.parse_args()
 
     if not args.command:
@@ -116,6 +117,5 @@ def main() -> None:
     elif args.command == "test":
         return handle_test_command(args)
 
-
-if __name__ == "__main__":
-    main()
+    if __name__ == "__main__":
+        main()
