@@ -21,7 +21,10 @@ console = Console()
 
 def get_provider_by_name(name: str) -> type[BaseReviewsProvider] | None:
     """Get a provider class by name."""
-    for provider_class in list_providers():
+    providers = list_providers()
+    provider_names = [p().name for p in providers]
+    console.print(f"[dim]Available providers: {provider_names}[/dim]")
+    for provider_class in providers:
         if provider_class().name.lower() == name.lower():
             return provider_class
     return None
