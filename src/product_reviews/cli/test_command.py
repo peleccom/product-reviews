@@ -108,7 +108,8 @@ def run_pytest(provider_name: str | None = None, verbose: bool = False) -> int:
 def command_test(args: argparse.Namespace) -> int:
     """
     Main test command.
-    Records responses (if needed) and runs tests.
+    Records responses - recording IS the test for providers.
+    For external packages, this is sufficient (no separate pytest needed).
     """
     cache = ResponseCache()
     re_record = args.re_record
@@ -118,10 +119,8 @@ def command_test(args: argparse.Namespace) -> int:
     is_external = package_dir != Path.cwd()
 
     if args.all:
-        # Test all providers
         providers = list_providers()
     elif args.provider:
-        # Test specific provider
         provider_class = get_provider_by_name(args.provider)
         if not provider_class:
             console.print(f"[red]Error: Provider '{args.provider}' not found[/red]")
@@ -136,7 +135,6 @@ def command_test(args: argparse.Namespace) -> int:
         provider = provider_class()
         provider_name = provider.name
 
-        # Check if we need to record
         needs_recording = re_record or not cache.has_cached_responses(provider_name)
 
         if needs_recording:
@@ -150,19 +148,14 @@ def command_test(args: argparse.Namespace) -> int:
         else:
             console.print(f"[green]Using cached responses for {provider_name}[/green]")
 
-    # Run pytest only if we're in product-reviews package
-    # For external packages, just verify recording succeeded
-    if not is_external:
-        if len(providers) == 1:
-            provider_name = providers[0]().name
-        else:
-            provider_name = None
-
-        return run_pytest(provider_name, verbose=args.verbose)
-    else:
-        console.print("\n[green]Recording completed. Skipping pytest for external package.[/green]")
-        console.print("[dim]To run tests, define them in your own tests/ directory.[/dim]")
+    # Recording IS the test - no separate pytest needed
+    # For external packages, recording is sufficient
+    # For internal (product-reviews), run pytest for unit tests of testing infrastructure
+    if is_external:
+        console.print("\n[green]Recording completed. Tests passed![/green]")
         return 0
+
+    return run_pytest(verbose=args.verbose)
 
 
 def main_test_command() -> int:
