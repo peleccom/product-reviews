@@ -6,7 +6,7 @@ from rich.console import Console
 from rich.table import Table
 
 from product_reviews.cli.health_check import run_health_checks
-from product_reviews.cli.test_command import command_test
+from product_reviews.cli.test_command import main_test_command
 from product_reviews.providers.exceptions import ReviewsParseException
 from product_reviews.providers.registry import list_providers
 from product_reviews.reviews import ProductReviewsService
@@ -73,7 +73,7 @@ def command_health(args: argparse.Namespace):
 
 
 def handle_test_command(args: argparse.Namespace):
-    return_code = command_test(args)
+    return_code = main_test_command()
     sys.exit(return_code)
 
 

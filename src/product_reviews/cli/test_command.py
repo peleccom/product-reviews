@@ -112,6 +112,7 @@ def command_test(args: argparse.Namespace) -> int:
     For external packages, this is sufficient (no separate pytest needed).
     """
     import os
+
     cache_dir = getattr(args, "cache_dir", None)
     if cache_dir:
         os.environ["PRODUCT_REVIEWS_CACHE_DIR"] = cache_dir
@@ -134,10 +135,6 @@ def command_test(args: argparse.Namespace) -> int:
     else:
         console.print("[red]Error: Specify --provider or --all[/red]")
         return 1
-        providers = [provider_class]
-    else:
-        console.print("[red]Error: Specify --provider or --all[/red]")
-        return 1
 
     # Process each provider
     for provider_class in providers:
@@ -153,7 +150,7 @@ def command_test(args: argparse.Namespace) -> int:
         else:
             console.print(f"[green]Using cached responses for {provider_name}[/green]")
 
-    # Recording IS test - no separate pytest needed
+    # Recording IS the test - no separate pytest needed
     # For external packages, recording is sufficient
     # For internal (product-reviews), run pytest for unit tests of testing infrastructure
     if is_external:
