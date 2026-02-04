@@ -63,7 +63,7 @@ def record_provider(provider_class: type[BaseReviewsProvider], re_record: bool =
 
 
 def run_pytest(provider_name: str | None = None, verbose: bool = False) -> int:
-    """Run pytest with the recorded responses."""
+    """Run pytest with recorded responses."""
     console.print("\n[bold blue]Running tests...[/bold blue]")
 
     # Build pytest command
@@ -80,10 +80,14 @@ def run_pytest(provider_name: str | None = None, verbose: bool = False) -> int:
     if not verbose:
         cmd.append("--tb=short")
 
-    cmd.append("tests/")
+    # Get the product-reviews package directory
+    package_dir = Path(__file__).parent.parent.parent.parent
+    tests_dir = package_dir / "tests"
+
+    cmd.append(str(tests_dir))
 
     # Run pytest
-    result = subprocess.run(cmd, capture_output=False, text=True)
+    result = subprocess.run(cmd, capture_output=False, text=True, cwd=str(package_dir))
     return result.returncode
 
 
