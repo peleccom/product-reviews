@@ -111,6 +111,11 @@ def command_test(args: argparse.Namespace) -> int:
     Records responses - recording IS the test for providers.
     For external packages, this is sufficient (no separate pytest needed).
     """
+    import os
+    cache_dir = args.cache_dir
+    if cache_dir:
+        os.environ["PRODUCT_REVIEWS_CACHE_DIR"] = cache_dir
+
     cache = ResponseCache()
     re_record = args.re_record
 
@@ -125,6 +130,10 @@ def command_test(args: argparse.Namespace) -> int:
         if not provider_class:
             console.print(f"[red]Error: Provider '{args.provider}' not found[/red]")
             return 1
+        providers = [provider_class]
+    else:
+        console.print("[red]Error: Specify --provider or --all[/red]")
+        return 1
         providers = [provider_class]
     else:
         console.print("[red]Error: Specify --provider or --all[/red]")
