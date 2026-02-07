@@ -1,13 +1,13 @@
 url: https://example.com/reviews/product-2
 reviews:
 - rating: 5.0
-  created_at: '2026-02-07T02:56:07.768335'
+  created_at: '2026-02-07T00:38:55.790261'
   text: This is a dummy review for testing.
   pros: null
   cons: null
   summary: null
 - rating: 4.0
-  created_at: '2026-02-07T02:56:07.768341'
+  created_at: '2026-02-07T00:38:55.790265'
   text: Another dummy review.
   pros: null
   cons: null
