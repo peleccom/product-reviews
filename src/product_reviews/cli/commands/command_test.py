@@ -53,7 +53,7 @@ def _test_test_url(
     mock_data = None if re_record else load_mock_data(provider_class, url_index, url_type="valid", storage=storage)
     mock_captured_data = mock_data.get("captured_data", []) if mock_data else []
 
-    if mock_data and mock_captured_data:
+    if mock_data:
         # Use cached mock response
         with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
             register_mock_responses(rsps, mock_captured_data)
@@ -116,7 +116,7 @@ def _test_invalid_url(
     mock_data = None if re_record else load_mock_data(provider_class, url_index, url_type="invalid", storage=storage)
     mock_captured_data = mock_data.get("captured_data", []) if mock_data else []
 
-    if mock_data and mock_captured_data:
+    if mock_data:
         # Use cached mock response
         with responses.RequestsMock(assert_all_requests_are_fired=False) as rsps:
             register_mock_responses(rsps, mock_captured_data)

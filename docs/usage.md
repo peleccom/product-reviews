@@ -73,6 +73,7 @@ Providers can define test URLs and invalid URLs:
 
 ```python
 from product_reviews.providers.base import BaseReviewsProvider
+from product_reviews import Review
 from typing import ClassVar
 
 class MyReviewsProvider(BaseReviewsProvider):
