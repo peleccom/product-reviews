@@ -20,6 +20,8 @@ classifiers = [
 dependencies = [
     "requests>=2.32.0",
     "rich>=14.2.0",
+    "responses>=0.25.0",
+    "pyyaml>=6.0.0"
 ]
 
 [project.urls]
@@ -29,6 +31,9 @@ Documentation = "https://peleccom.github.io/product-reviews/"
 
 [project.scripts]
 product-reviews = "product_reviews.cli.main:main"
+
+[project.entry-points.pytest11]
+product-reviews = "product_reviews.pytest_plugin"
 
 [tool.uv]
 package = true
@@ -135,3 +140,6 @@ name = "testpypi"
 url = "https://test.pypi.org/simple/"
 publish-url = "https://test.pypi.org/legacy/"
 explicit = true
+
+[tool.deptry]
+extend_exclude = [".*pytest_plugin.py"]

@@ -20,6 +20,24 @@ Build, Lint, Test Commands
   - Run a single test file: `make test-one TESTS='tests/path/to/test_file.py'`.
   - Direct pytest usage: `uv run python -m pytest -vv -k "pattern" path/to/test.py`.
 
+Provider Testing Architecture
+- The package ships a pytest plugin (`src/product_reviews/pytest_plugin.py`) registered via the `pytest11` entry point.
+- The plugin auto-generates test items for every provider that defines `test_urls` or `invalid_urls`, with no test files needed.
+- Testing infrastructure is organized into three layers:
+  - **Testing utilities** (`src/product_reviews/providers/testing/`): Shared code for mock storage, HTTP capture, and validation.
+    - `mock_storage.py`: Extensible mock storage abstraction (YAML, JSON) via `MockStorage` ABC.
+    - `mock_utils.py`: Mock file management (save, load, clear, validate).
+    - `http_capture.py`: HTTP request/response capture and replay utilities.
+  - **Pytest plugin** (`src/product_reviews/pytest_plugin.py`): Uses testing utilities to inject auto-generated tests.
+- Mock data (recorded HTTP request/response pairs) is stored in **YAML format** for readability and ease of manual editing.
+- Record or re-record mocks: `product-reviews test --re-record` (or `--provider <name>` for a single provider).
+- Mock files are stored alongside each provider's module in a `mocks/` directory with naming:
+  - Valid URLs: `{provider_name}_{url_index}_0.yaml`
+  - Invalid URLs: `{provider_name}_invalid_{url_index}_0.yaml`
+- **Both valid and invalid URLs are mocked**: All HTTP requests are captured and replayed to ensure deterministic, offline testing.
+- The CLI `test` command runs provider tests standalone with rich table output.
+- The pytest plugin replays recorded mocks via the `responses` library; tests **fail** (not skip) if no mock data exists.
+
 Code Style Guidelines
 - General philosophy: clarity, readability, and maintainability over cleverness.
 - Formatting and tools:
