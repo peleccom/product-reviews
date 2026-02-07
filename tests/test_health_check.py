@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import ClassVar
 from unittest.mock import MagicMock, patch
 
-from product_reviews.cli.health_check import get_all_providers, main, run_health_checks
+from product_reviews.cli.commands.command_health import get_all_providers, main, run_health_checks
 from product_reviews.models import Review
 from product_reviews.providers.base import BaseReviewsProvider
 
@@ -48,8 +48,8 @@ def test_get_all_providers_filters_ozon_by(mock_providers):
     assert result[0].name == "OtherProvider"
 
 
-@patch("product_reviews.cli.health_check.get_all_providers")
-@patch("product_reviews.cli.health_check.console")
+@patch("product_reviews.cli.commands.command_health.get_all_providers")
+@patch("product_reviews.cli.commands.command_health.console")
 def test_run_health_checks_all_healthy(mock_console, mock_providers):
     """Test run_health_checks returns True when all providers are healthy."""
     mock_providers.return_value = [MockHealthyProvider]
@@ -62,8 +62,8 @@ def test_run_health_checks_all_healthy(mock_console, mock_providers):
     mock_console.print.assert_called_once()
 
 
-@patch("product_reviews.cli.health_check.get_all_providers")
-@patch("product_reviews.cli.health_check.console")
+@patch("product_reviews.cli.commands.command_health.get_all_providers")
+@patch("product_reviews.cli.commands.command_health.console")
 def test_run_health_checks_some_unhealthy(mock_console, mock_providers):
     """Test run_health_checks returns False when some providers are unhealthy."""
     mock_providers.return_value = [MockHealthyProvider, MockUnhealthyProvider]
@@ -76,8 +76,8 @@ def test_run_health_checks_some_unhealthy(mock_console, mock_providers):
     mock_console.print.assert_called_once()
 
 
-@patch("product_reviews.cli.health_check.get_all_providers")
-@patch("product_reviews.cli.health_check.console")
+@patch("product_reviews.cli.commands.command_health.get_all_providers")
+@patch("product_reviews.cli.commands.command_health.console")
 def test_run_health_checks_with_custom_providers(mock_console, mock_providers):
     """Test run_health_checks with custom provider list."""
     providers = [MockHealthyProvider]
@@ -88,7 +88,7 @@ def test_run_health_checks_with_custom_providers(mock_console, mock_providers):
     mock_providers.assert_not_called()
 
 
-@patch("product_reviews.cli.health_check.run_health_checks")
+@patch("product_reviews.cli.commands.command_health.run_health_checks")
 def test_health_check_main_all_healthy(mock_health_checks):
     """Test health check main function returns 0 when all healthy."""
     mock_health_checks.return_value = True
@@ -99,7 +99,7 @@ def test_health_check_main_all_healthy(mock_health_checks):
     mock_health_checks.assert_called_once()
 
 
-@patch("product_reviews.cli.health_check.run_health_checks")
+@patch("product_reviews.cli.commands.command_health.run_health_checks")
 def test_health_check_main_some_unhealthy(mock_health_checks):
     """Test health check main function returns 1 when some unhealthy."""
     mock_health_checks.return_value = False
@@ -110,8 +110,8 @@ def test_health_check_main_some_unhealthy(mock_health_checks):
     mock_health_checks.assert_called_once()
 
 
-@patch("product_reviews.cli.health_check.run_health_checks")
-@patch("product_reviews.cli.health_check.console")
+@patch("product_reviews.cli.commands.command_health.run_health_checks")
+@patch("product_reviews.cli.commands.command_health.console")
 def test_health_check_main_exception(mock_console, mock_health_checks):
     """Test health check main function handles exceptions gracefully."""
     mock_health_checks.side_effect = Exception("Test error")

@@ -84,6 +84,7 @@ class BaseReviewsProvider(ABC):
     notes: ClassVar[str | None]
     url_regex: ClassVar[list[str] | str]
     test_urls: ClassVar[list[str]] = []
+    invalid_urls: ClassVar[list[str]] = []
 
     @classmethod
     def check_url(cls, url: str) -> bool:

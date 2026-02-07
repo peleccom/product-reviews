@@ -32,7 +32,7 @@ Expected file structure:
 
     url_regex: ClassVar[list[str] | str] = r"jsonf://"
     test_urls: ClassVar[list[str]] = [
-        f"json://{(script_file / 'tests' / 'data' / '1.json').as_posix()}",
+        f"jsonf://{(script_file / 'tests' / 'data' / '1.json').as_posix()}",
     ]
 
     def get_reviews(self, url: str) -> list[Review]:

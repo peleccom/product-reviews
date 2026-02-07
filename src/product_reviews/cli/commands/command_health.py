@@ -1,7 +1,6 @@
-"""
-Health check module for review providers.
-"""
+"""Health check command for product-reviews CLI."""
 
+import argparse
 import sys
 from typing import Union
 
@@ -9,9 +8,16 @@ from rich.console import Console
 from rich.table import Table
 
 from product_reviews.providers.base import BaseReviewsProvider
-from product_reviews.reviews import _list_providers
+from product_reviews.reviews import ProductReviewsService, _list_providers
+
+from .base import BaseCommand
 
 console = Console()
+
+
+def add_health_parser(subparsers):
+    health_parser = subparsers.add_parser("health", help="Check health of review providers")
+    health_parser.add_argument("--provider", type=str, help="Check specific provider (by name)")
 
 
 def get_all_providers() -> list[type[BaseReviewsProvider]]:
@@ -29,9 +35,13 @@ def _select_provider(providers: Union[list[type[BaseReviewsProvider]], None] = N
 
 
 def run_health_checks(providers: Union[list[type[BaseReviewsProvider]], None] = None) -> bool:
-    """
-    Run health checks for all providers or specified providers.
-    Returns True if all providers are healthy.
+    """Run health checks for all providers or specified providers.
+
+    Args:
+        providers: Optional list of providers to check. If None, checks all providers.
+
+    Returns:
+        True if all providers are healthy, False otherwise.
     """
     providers = _select_provider(providers)
 
@@ -75,6 +85,31 @@ def run_health_checks(providers: Union[list[type[BaseReviewsProvider]], None] = 
 
     console.print(table)
     return all_healthy
+
+
+class CommandHealth(BaseCommand):
+    name = "health"
+    help = "Check health of review providers"
+
+    def add_arguments(self, parser: argparse.ArgumentParser) -> None:
+        parser.add_argument("--provider", type=str, help="Check specific provider (by name)")
+
+    def run(self, args):
+        """Execute the health command.
+
+        Args:
+            args: Command line arguments.
+        """
+        providers = None
+        if args.provider:
+            service = ProductReviewsService()
+            providers = [p for p in service.list_providers() if p().name.lower() == args.provider.lower()]
+            if not providers:
+                print(f"Error: Provider '{args.provider}' not found")
+                sys.exit(1)
+
+        success = run_health_checks(providers)
+        sys.exit(0 if success else 1)
 
 
 def main() -> int:

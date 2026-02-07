@@ -37,6 +37,60 @@ product-reviews health
 product-reviews health --provider "JSON FS"
 ```
 
+### Test providers
+
+Test providers to ensure they work correctly and generate mock responses for offline testing:
+
+```bash
+# Test all providers
+product-reviews test
+
+# Test specific provider
+product-reviews test --provider "dummy"
+
+# Force re-record mock responses (clear existing mocks and make real API calls)
+product-reviews test --re-record
+product-reviews test --provider "dummy" --re-record
+```
+
+#### How it works
+
+1. **First run (no mocks)**: The command makes real API calls to `test_urls` defined by each provider
+2. **Validation**: For each test URL, it validates that:
+   - Reviews can be fetched successfully
+   - Reviews have required fields (rating, created_at)
+   - Invalid URLs (defined in `invalid_urls`) raise `ReviewsParseException`
+3. **Mock storage**: Successful responses are saved as mock files:
+   - Local providers (in product-reviews package): `providers/<provider>/mocks/<provider>_<index>_<page>.json`
+   - External providers (via entry points): `~/.product-reviews/mocks/<provider>/<provider>_<index>_<page>.json`
+
+4. **Subsequent runs**: Uses cached mocks instead of making real API calls
+5. **Re-record**: Use `--re-record` to clear existing mocks and make fresh API calls
+
+#### Provider test configuration
+
+Providers can define test URLs and invalid URLs:
+
+```python
+from product_reviews.providers.base import BaseReviewsProvider
+from typing import ClassVar
+
+class MyReviewsProvider(BaseReviewsProvider):
+    name: ClassVar[str] = "my_provider"
+    description: ClassVar[str] = "My custom reviews provider"
+    url_regex: ClassVar[str] = r"https?://example\.com/.*"
+    test_urls: ClassVar[list[str]] = [
+        "https://example.com/product-1",
+        "https://example.com/product-2",
+    ]
+    invalid_urls: ClassVar[list[str]] = [
+        "https://example.com/invalid-product",
+    ]
+
+    def get_reviews(self, url: str) -> list[Review]:
+        pass
+```
+
 ## Python API Usage
 
 ### Basic Usage
@@ -239,6 +293,7 @@ class MyReviewsProvider(BaseReviewsProvider):
     test_urls: ClassVar[list[str]] = [
         "https://example.com/product-1",
     ]
+    invalid_urls: ClassVar[list[str]] = []  # Optional: URLs that should raise ReviewsParseException
 
     def get_reviews(self, url: str) -> list[Review]:
         # Implement your review fetching logic here
@@ -254,4 +309,47 @@ class MyReviewsProvider(BaseReviewsProvider):
                 created_at=datetime.now(),
             ),
         ]
+```
+
+### Testing Your Provider
+
+After creating a provider, test it using the CLI:
+
+```bash
+# Test your provider
+product-reviews test --provider "my_provider"
+
+# Re-record mocks if needed
+product-reviews test --provider "my_provider" --re-record
+```
+
+### Provider Location and Mock Storage
+
+- **Local providers** (in product-reviews package): Mocks are stored in `providers/<provider>/mocks/`
+- **External providers** (installed via pip or entry points): Mocks are stored in `~/.product-reviews/mocks/<provider>/`
+
+The mock file format:
+```json
+{
+  "url": "https://example.com/product-1",
+  "reviews": [
+    {
+      "rating": 5.0,
+      "text": "Excellent product!",
+      "created_at": "2024-01-01T12:00:00",
+      "pros": "",
+      "cons": "",
+      "summary": ""
+    }
+  ],
+  "captured_data": [
+    {
+      "method": "GET",
+      "url": "https://example.com/api/reviews",
+      "headers": {...},
+      "status_code": 200,
+      "text": "..."
+    }
+  ]
+}
 ```

@@ -11,8 +11,7 @@ from product_reviews.providers.base import BaseReviewsProvider
 from product_reviews.providers.exceptions import ReviewsParseException
 
 
-@patch("product_reviews.cli.main.logger")
-def test_command_list(mock_logger, mock_providers, monkeypatch, capsys):
+def test_command_list(mock_providers, monkeypatch, capsys):
     """Test CLI list command displays provider information correctly."""
 
     class TestProvider(BaseReviewsProvider):
@@ -36,9 +35,9 @@ def test_command_list(mock_logger, mock_providers, monkeypatch, capsys):
     assert r"https?://test\.com/.*" in captured.out
 
 
-@patch("product_reviews.cli.main.ProductReviewsService.parse_reviews")
-@patch("product_reviews.cli.main.logger")
-def test_command_scrape_success(mock_logger, mock_parse, monkeypatch, capsys):
+@patch("product_reviews.cli.commands.command_scrape.logger")
+@patch("product_reviews.cli.commands.command_scrape.ProductReviewsService.parse_reviews")
+def test_command_scrape_success(mock_parse, mock_logger, monkeypatch, capsys):
     """Test CLI scrape command successfully extracts and displays reviews."""
     mock_reviews = [Review(rating=5.0, text="Great", created_at=datetime(2020, 1, 1))]
     mock_parse.return_value = ProviderReviewList(provider="TestProvider", reviews=mock_reviews)
@@ -52,9 +51,9 @@ def test_command_scrape_success(mock_logger, mock_parse, monkeypatch, capsys):
     mock_parse.assert_called_once_with("https://test.com")
 
 
-@patch("product_reviews.cli.main.ProductReviewsService.parse_reviews")
-@patch("product_reviews.cli.main.logger")
-def test_command_scrape_parse_exception(mock_logger, mock_parse, monkeypatch, capsys):
+@patch("product_reviews.cli.commands.command_scrape.logger")
+@patch("product_reviews.cli.commands.command_scrape.ProductReviewsService.parse_reviews")
+def test_command_scrape_parse_exception(mock_parse, mock_logger, monkeypatch, capsys):
     """Test CLI scrape command handles ReviewsParseException and exits with error code 1."""
     exception = ReviewsParseException("Parse failed")
     cause_exception = Exception("Mock cause")
@@ -71,9 +70,9 @@ def test_command_scrape_parse_exception(mock_logger, mock_parse, monkeypatch, ca
     mock_parse.assert_called_once_with("https://test.com")
 
 
-@patch("product_reviews.cli.main.ProductReviewsService.parse_reviews")
-@patch("product_reviews.cli.main.logger")
-def test_command_scrape_general_exception(mock_logger, mock_parse, monkeypatch, capsys):
+@patch("product_reviews.cli.commands.command_scrape.logger")
+@patch("product_reviews.cli.commands.command_scrape.ProductReviewsService.parse_reviews")
+def test_command_scrape_general_exception(mock_parse, mock_logger, monkeypatch, capsys):
     """Test CLI scrape command raises general exceptions without handling them."""
     mock_parse.side_effect = Exception("General error")
 
@@ -86,9 +85,8 @@ def test_command_scrape_general_exception(mock_logger, mock_parse, monkeypatch, 
     mock_parse.assert_called_once_with("https://test.com")
 
 
-@patch("product_reviews.cli.main.run_health_checks")
-@patch("product_reviews.cli.main.logger")
-def test_command_health_success(mock_logger, mock_health, mock_providers, monkeypatch):
+@patch("product_reviews.cli.commands.command_health.run_health_checks")
+def test_command_health_success(mock_health, mock_providers, monkeypatch):
     """Test CLI health command exits with code 0 when health checks pass."""
 
     class TestProvider(BaseReviewsProvider):
@@ -108,9 +106,8 @@ def test_command_health_success(mock_logger, mock_health, mock_providers, monkey
     mock_health.assert_called_once()
 
 
-@patch("product_reviews.cli.main.run_health_checks")
-@patch("product_reviews.cli.main.logger")
-def test_command_health_provider_not_found(mock_logger, mock_health, mock_providers, monkeypatch, capsys):
+@patch("product_reviews.cli.commands.command_health.run_health_checks")
+def test_command_health_provider_not_found(mock_health, mock_providers, monkeypatch, capsys):
     """Test CLI health command displays error and exits with code 1 when provider not found."""
 
     class TestProvider(BaseReviewsProvider):
@@ -132,8 +129,7 @@ def test_command_health_provider_not_found(mock_logger, mock_health, mock_provid
 
 
 @patch("product_reviews.cli.main.argparse.ArgumentParser")
-@patch("product_reviews.cli.main.logger")
-def test_main_no_command(mock_logger, mock_parser):
+def test_main_no_command(mock_parser):
     """Test CLI main function prints help and exits when no command provided."""
     mock_instance = Mock()
     mock_parser.return_value = mock_instance
@@ -150,14 +146,13 @@ def test_main_no_command(mock_logger, mock_parser):
 
 
 @patch("product_reviews.cli.main.argparse.ArgumentParser")
-@patch("product_reviews.cli.main.logger")
-def test_main_scrape_command(mock_logger, mock_parser):
-    """Test CLI main function calls command_scrape when scrape command provided."""
+def test_main_scrape_command(mock_parser):
+    """Test CLI main function calls CommandScrape when scrape command provided."""
     mock_instance = Mock()
     mock_parser.return_value = mock_instance
     mock_instance.parse_args.return_value = argparse.Namespace(command="scrape", url="https://test.com")
 
-    with patch("product_reviews.cli.main.command_scrape") as mock_scrape:
+    with patch("product_reviews.cli.main.CommandScrape.run") as mock_scrape:
         main()
 
         mock_scrape.assert_called_once_with(argparse.Namespace(command="scrape", url="https://test.com"))
@@ -166,14 +161,13 @@ def test_main_scrape_command(mock_logger, mock_parser):
 
 
 @patch("product_reviews.cli.main.argparse.ArgumentParser")
-@patch("product_reviews.cli.main.logger")
-def test_main_health_command(mock_logger, mock_parser):
-    """Test CLI main function calls command_health when health command provided."""
+def test_main_health_command(mock_parser):
+    """Test CLI main function calls CommandHealth when health command provided."""
     mock_instance = Mock()
     mock_parser.return_value = mock_instance
     mock_instance.parse_args.return_value = argparse.Namespace(command="health", provider=None)
 
-    with patch("product_reviews.cli.main.command_health") as mock_health:
+    with patch("product_reviews.cli.main.CommandHealth.run") as mock_health:
         main()
 
         mock_health.assert_called_once_with(argparse.Namespace(command="health", provider=None))
@@ -182,14 +176,13 @@ def test_main_health_command(mock_logger, mock_parser):
 
 
 @patch("product_reviews.cli.main.argparse.ArgumentParser")
-@patch("product_reviews.cli.main.logger")
-def test_main_list_command(mock_logger, mock_parser):
-    """Test CLI main function calls command_list when list command provided."""
+def test_main_list_command(mock_parser):
+    """Test CLI main function calls CommandList when list command provided."""
     mock_instance = Mock()
     mock_parser.return_value = mock_instance
     mock_instance.parse_args.return_value = argparse.Namespace(command="list")
 
-    with patch("product_reviews.cli.main.command_list") as mock_list:
+    with patch("product_reviews.cli.main.CommandList.run") as mock_list:
         main()
 
         mock_list.assert_called_once_with(argparse.Namespace(command="list"))
