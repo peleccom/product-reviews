@@ -1,3 +1,5 @@
+import os
+from itertools import chain
 from pathlib import Path
 from unittest.mock import patch
 
@@ -6,6 +8,7 @@ from product_reviews.providers.base import BaseReviewsProvider
 from product_reviews.providers.loaders import (
     ENV_PLUGINS_DIR,
     get_plugins_dir,
+    iter_all_providers,
     load_all_providers_map,
 )
 
@@ -102,3 +105,121 @@ def test_get_plugins_dir_not_set():
 def test_env_plugins_dir_constant():
     """Test ENV_PLUGINS_DIR constant is correct."""
     assert ENV_PLUGINS_DIR == "PRODUCT_REVIEWS_PLUGINS_DIR"
+
+
+class TestIterAllProviders:
+    """Tests for iter_all_providers function."""
+
+    def test_iter_all_providers_without_plugins_dir(self):
+        """Test iter_all_providers yields providers without custom plugins dir."""
+
+        class EntryProvider(BaseReviewsProvider):
+            name = "EntryProvider"
+
+            def get_reviews(self, url: str) -> list[Review]:
+                return []
+
+        class LocalProvider(BaseReviewsProvider):
+            name = "LocalProvider"
+
+            def get_reviews(self, url: str) -> list[Review]:
+                return []
+
+        with patch("product_reviews.providers.loaders.iter_all_providers") as mock_iter:
+            mock_iter.return_value = iter([EntryProvider, LocalProvider])
+
+            result = list(iter_all_providers())
+
+            assert len(result) == 2
+
+    def test_iter_all_providers_with_plugins_dir(self):
+        """Test iter_all_providers yields providers with custom plugins dir."""
+
+        class EntryProvider(BaseReviewsProvider):
+            name = "EntryProvider"
+
+            def get_reviews(self, url: str) -> list[Review]:
+                return []
+
+        class CustomProvider(BaseReviewsProvider):
+            name = "CustomProvider"
+
+            def get_reviews(self, url: str) -> list[Review]:
+                return []
+
+        custom_dir = Path("/custom/plugins")
+
+        with patch("product_reviews.providers.loaders.iter_all_providers") as mock_iter:
+            mock_iter.return_value = iter([EntryProvider, CustomProvider])
+
+            result = list(iter_all_providers(plugins_dir=custom_dir))
+
+            assert len(result) == 2
+
+    def test_iter_all_providers_empty(self):
+        """Test iter_all_providers handles empty providers."""
+
+        with patch("product_reviews.providers.loaders.iter_all_providers") as mock_iter:
+            mock_iter.return_value = iter([])
+
+            result = iter_all_providers()
+
+            assert isinstance(result, chain)
+
+    def test_iter_all_providers_returns_chain(self):
+        """Test iter_all_providers returns an itertools.chain object."""
+
+        with patch("product_reviews.providers.loaders.iter_all_providers") as mock_iter:
+            mock_iter.return_value = iter([])
+
+            result = iter_all_providers()
+
+            assert isinstance(result, chain)
+
+
+class TestGetPluginsDirEdgeCases:
+    """Additional edge case tests for get_plugins_dir."""
+
+    def test_get_plugins_dir_with_empty_string(self):
+        """Test get_plugins_dir with empty string returns None (falsy value)."""
+
+        original = os.environ.get(ENV_PLUGINS_DIR)
+        try:
+            os.environ[ENV_PLUGINS_DIR] = ""
+            result = get_plugins_dir()
+            assert result is None
+        finally:
+            if original is None:
+                os.environ.pop(ENV_PLUGINS_DIR, None)
+            else:
+                os.environ[ENV_PLUGINS_DIR] = original
+
+    def test_get_plugins_dir_with_whitespace(self):
+        """Test get_plugins_dir with whitespace-only value."""
+
+        original = os.environ.get(ENV_PLUGINS_DIR)
+        try:
+            os.environ[ENV_PLUGINS_DIR] = "   "
+            result = get_plugins_dir()
+            assert result == Path("   ")
+        finally:
+            if original is None:
+                os.environ.pop(ENV_PLUGINS_DIR, None)
+            else:
+                os.environ[ENV_PLUGINS_DIR] = original
+
+    def test_get_plugins_dir_preserves_path_object(self):
+        """Test get_plugins_dir returns Path object."""
+
+        original = os.environ.get(ENV_PLUGINS_DIR)
+        test_path = "/some/path"
+        try:
+            os.environ[ENV_PLUGINS_DIR] = test_path
+            result = get_plugins_dir()
+            assert isinstance(result, Path)
+            assert str(result) == test_path
+        finally:
+            if original is None:
+                os.environ.pop(ENV_PLUGINS_DIR, None)
+            else:
+                os.environ[ENV_PLUGINS_DIR] = original

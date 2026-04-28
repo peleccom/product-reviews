@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import ClassVar
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, Mock, patch
 
-from product_reviews.cli.commands.command_health import get_all_providers, main, run_health_checks
+import pytest
+
+from product_reviews.cli.commands.command_health import CommandHealth, get_all_providers, run_health_checks
 from product_reviews.models import Review
 from product_reviews.providers.base import BaseReviewsProvider
 
@@ -93,9 +95,10 @@ def test_health_check_main_all_healthy(mock_health_checks):
     """Test health check main function returns 0 when all healthy."""
     mock_health_checks.return_value = True
 
-    result = main()
+    with pytest.raises(SystemExit) as exc_info:
+        CommandHealth().run(Mock(provider=None))
 
-    assert result == 0
+    assert exc_info.value.code == 0
     mock_health_checks.assert_called_once()
 
 
@@ -104,9 +107,10 @@ def test_health_check_main_some_unhealthy(mock_health_checks):
     """Test health check main function returns 1 when some unhealthy."""
     mock_health_checks.return_value = False
 
-    result = main()
+    with pytest.raises(SystemExit) as exc_info:
+        CommandHealth().run(Mock(provider=None))
 
-    assert result == 1
+    assert exc_info.value.code == 1
     mock_health_checks.assert_called_once()
 
 
@@ -116,8 +120,5 @@ def test_health_check_main_exception(mock_console, mock_health_checks):
     """Test health check main function handles exceptions gracefully."""
     mock_health_checks.side_effect = Exception("Test error")
 
-    result = main()
-
-    assert result == 2
-    mock_console.print.assert_called_once()
-    assert "Error running health checks" in mock_console.print.call_args[0][0]
+    with pytest.raises(Exception, match="Test error"):
+        CommandHealth().run(Mock(provider=None))

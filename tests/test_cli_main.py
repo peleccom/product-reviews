@@ -11,6 +11,14 @@ from product_reviews.providers.base import BaseReviewsProvider
 from product_reviews.providers.exceptions import ReviewsParseException
 
 
+def test_help_info(monkeypatch, capsys):
+    monkeypatch.setattr(sys, "argv", ["product-reviews"])
+    with pytest.raises(SystemExit):
+        main()
+    captured = capsys.readouterr()
+    assert "CLI app to scrape reviews" in captured.out
+
+
 def test_command_list(mock_providers, monkeypatch, capsys):
     """Test CLI list command displays provider information correctly."""
 
