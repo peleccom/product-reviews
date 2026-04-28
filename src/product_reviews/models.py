@@ -26,7 +26,7 @@ class Review:
 
     def to_json(self):
         r = self.to_representation()
-        return json.dumps(r)
+        return json.dumps(r, ensure_ascii=False)
 
     @classmethod
     def from_representation(self, r):
